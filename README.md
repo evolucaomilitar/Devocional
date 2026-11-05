@@ -67,5 +67,13 @@ Se você quiser ter o arquivo `.apk` para enviar diretamente pelo WhatsApp para 
 4. **🔊 Leitura por Áudio:**
    - Narração por voz suave em português do devocional e oração.
 
-5. **❤️ Meus Favoritos & 📝 Diário de Oração Pessoal:**
+5. **👥 Lista de Contatos do WhatsApp & Envio Direcionado:**
+   - **Importação Direta do Celular:** Pega contatos nativos da agenda do aparelho com 1 toque (Contact Picker API).
+   - **Importação por Arquivo (.vcf / CSV):** Importa contatos exportados do WhatsApp, Google Contatos ou iCloud.
+   - **Cadastro Manual & Colar em Lote:** Cadastre contatos manualmente ou cole listas completas.
+   - **Envio Individual em 1 Toque:** Abre o WhatsApp com a conversa do contato já selecionada e a mensagem do dia preenchida.
+   - **Controle de Envio Diário:** Identifica quem já recebeu o devocional hoje e quem ainda está pendente.
+   - **Fila Rápida:** Botão para avançar e enviar para o próximo contato pendente sem se perder.
+
+6. **❤️ Meus Favoritos & 📝 Diário de Oração Pessoal:**
    - Salve devocionais especiais e anote pedidos de oração que ficam gravados no próprio celular.

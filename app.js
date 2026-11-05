@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   inicializarLucide();
   carregarTemaModo();
   carregarDevocional(dataSelecionada);
+  inicializarContatosWhatsApp();
   configurarEventos();
   registrarServiceWorker();
 });
@@ -983,6 +984,110 @@ function configurarEventos() {
   document.getElementById('navInstagram').addEventListener('click', abrirModalInstagram);
   document.getElementById('navFavoritos').addEventListener('click', abrirModalFavoritos);
 
+  // Contatos WhatsApp
+  const btnContatosTopo = document.getElementById('btnAbrirContatosTopo');
+  const btnContatosBottom = document.getElementById('btnAbrirContatosBottom');
+  const navContatos = document.getElementById('navContatos');
+  const btnFecharContatos = document.getElementById('btnFecharModalContatos');
+
+  if (btnContatosTopo) btnContatosTopo.addEventListener('click', abrirModalContatos);
+  if (btnContatosBottom) btnContatosBottom.addEventListener('click', abrirModalContatos);
+  if (navContatos) navContatos.addEventListener('click', abrirModalContatos);
+  if (btnFecharContatos) btnFecharContatos.addEventListener('click', fecharModalContatos);
+
+  // Ações de Importação de Contatos
+  const btnImportarNativo = document.getElementById('btnImportarContatosNativo');
+  if (btnImportarNativo) btnImportarNativo.addEventListener('click', importarContatosDoCelular);
+
+  const btnTriggerVCF = document.getElementById('btnTriggerArquivoVCF');
+  const inputVCF = document.getElementById('inputArquivoVCF');
+  if (btnTriggerVCF && inputVCF) {
+    btnTriggerVCF.addEventListener('click', () => inputVCF.click());
+    inputVCF.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        importarArquivoVCF(e.target.files[0]);
+        e.target.value = '';
+      }
+    });
+  }
+
+  // Painel Novo Contato
+  const btnAbrirFormNovo = document.getElementById('btnAbrirFormNovoContato');
+  const btnFecharFormNovo = document.getElementById('btnFecharFormNovoContato');
+  const painelNovo = document.getElementById('painelNovoContato');
+  const btnSalvarNovo = document.getElementById('btnSalvarNovoContato');
+
+  if (btnAbrirFormNovo && painelNovo) {
+    btnAbrirFormNovo.addEventListener('click', () => {
+      painelNovo.classList.toggle('hidden');
+      document.getElementById('painelColarLote')?.classList.add('hidden');
+    });
+  }
+  if (btnFecharFormNovo && painelNovo) {
+    btnFecharFormNovo.addEventListener('click', () => painelNovo.classList.add('hidden'));
+  }
+  if (btnSalvarNovo) btnSalvarNovo.addEventListener('click', salvarNovoContatoManual);
+
+  // Painel Colar em Lote
+  const btnAbrirColar = document.getElementById('btnAbrirFormColarLote');
+  const btnFecharColar = document.getElementById('btnFecharFormColarLote');
+  const painelColar = document.getElementById('painelColarLote');
+  const btnProcessarColar = document.getElementById('btnProcessarColarLote');
+
+  if (btnAbrirColar && painelColar) {
+    btnAbrirColar.addEventListener('click', () => {
+      painelColar.classList.toggle('hidden');
+      document.getElementById('painelNovoContato')?.classList.add('hidden');
+    });
+  }
+  if (btnFecharColar && painelColar) {
+    btnFecharColar.addEventListener('click', () => painelColar.classList.add('hidden'));
+  }
+  if (btnProcessarColar) btnProcessarColar.addEventListener('click', processarColarLote);
+
+  // Enviar para próximo pendente
+  const btnProximoPendente = document.getElementById('btnEnviarProximoPendente');
+  if (btnProximoPendente) btnProximoPendente.addEventListener('click', enviarProximoPendente);
+
+  // Busca de Contatos
+  const inputBusca = document.getElementById('inputBuscaContatos');
+  const btnLimparBusca = document.getElementById('btnLimparBuscaContatos');
+  if (inputBusca) {
+    inputBusca.addEventListener('input', (e) => {
+      termoBuscaContatos = e.target.value.toLowerCase().trim();
+      if (btnLimparBusca) {
+        btnLimparBusca.classList.toggle('hidden', !termoBuscaContatos);
+      }
+      renderizarListaContatos();
+    });
+  }
+  if (btnLimparBusca && inputBusca) {
+    btnLimparBusca.addEventListener('click', () => {
+      inputBusca.value = '';
+      termoBuscaContatos = '';
+      btnLimparBusca.classList.add('hidden');
+      renderizarListaContatos();
+    });
+  }
+
+  // Filtros de Status (Todos, Pendentes, Já Enviados)
+  document.querySelectorAll('.btnFiltroContatos').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btnFiltroContatos').forEach(b => {
+        b.classList.remove('bg-emerald-600', 'text-white', 'font-bold');
+        b.classList.add('bg-stone-100', 'dark:bg-stone-800', 'text-stone-700', 'dark:text-stone-300', 'font-medium');
+      });
+      btn.classList.add('bg-emerald-600', 'text-white', 'font-bold');
+      btn.classList.remove('bg-stone-100', 'dark:bg-stone-800', 'text-stone-700', 'dark:text-stone-300', 'font-medium');
+      filtroContatosAtivo = btn.getAttribute('data-filtro');
+      renderizarListaContatos();
+    });
+  });
+
+  // Zerar status de envio de hoje
+  const btnZerarStatus = document.getElementById('btnLimparHistoricoEnvios');
+  if (btnZerarStatus) btnZerarStatus.addEventListener('click', zerarStatusEnviosHoje);
+
   // Instalação do Aplicativo (PWA)
   const btnInstalarTopo = document.getElementById('btnInstalarAppTopo');
   const modalInstalar = document.getElementById('modalInstalarApp');
@@ -1045,4 +1150,466 @@ function registrarServiceWorker() {
       // Ignora erro se executado diretamente sem servidor http
     });
   }
+}
+
+// --------------------------------------------------------------------------
+// GESTÃO DE CONTATOS DO WHATSAPP & ENVIO DIRECIONADO DO DEVOCIONAL
+// --------------------------------------------------------------------------
+let listaContatos = [];
+let filtroContatosAtivo = 'todos';
+let termoBuscaContatos = '';
+
+function inicializarContatosWhatsApp() {
+  listaContatos = obterContatosStorage();
+  atualizarBadgesContatos();
+}
+
+function obterContatosStorage() {
+  try {
+    return JSON.parse(localStorage.getItem('palavra_contatos')) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function salvarContatosStorage() {
+  localStorage.setItem('palavra_contatos', JSON.stringify(listaContatos));
+  atualizarBadgesContatos();
+}
+
+function atualizarBadgesContatos() {
+  const dataHoje = formatarDataCurta(new Date());
+  const total = listaContatos.length;
+  const enviados = listaContatos.filter(c => c.ultimoEnvio && c.ultimoEnvio.data === dataHoje).length;
+  const pendentes = total - enviados;
+
+  // Atualiza badges no cabeçalho e na navegação
+  const badgeTopo = document.getElementById('badgeQtdContatosTopo');
+  if (badgeTopo) badgeTopo.textContent = total;
+
+  const badgeNav = document.getElementById('badgeQtdContatosNav');
+  if (badgeNav) {
+    if (total > 0) {
+      badgeNav.textContent = pendentes > 0 ? pendentes : total;
+      badgeNav.classList.remove('hidden');
+      badgeNav.classList.add('flex');
+    } else {
+      badgeNav.classList.add('hidden');
+      badgeNav.classList.remove('flex');
+    }
+  }
+
+  // Atualiza contadores dentro do modal
+  const elTotal = document.getElementById('contadorTotalContatos');
+  const elEnviados = document.getElementById('contadorEnviadosHoje');
+  const elPendentes = document.getElementById('contadorPendentesHoje');
+  const tagTodos = document.getElementById('tagQtdTodos');
+  const tagPendentes = document.getElementById('tagQtdPendentes');
+  const tagEnviados = document.getElementById('tagQtdEnviados');
+
+  if (elTotal) elTotal.textContent = total;
+  if (elEnviados) elEnviados.textContent = enviados;
+  if (elPendentes) elPendentes.textContent = pendentes;
+  if (tagTodos) tagTodos.textContent = total;
+  if (tagPendentes) tagPendentes.textContent = pendentes;
+  if (tagEnviados) tagEnviados.textContent = enviados;
+}
+
+function abrirModalContatos() {
+  const modal = document.getElementById('modalContatosWhatsApp');
+  if (modal) {
+    modal.classList.remove('hidden');
+    renderizarListaContatos();
+  }
+}
+
+function fecharModalContatos() {
+  const modal = document.getElementById('modalContatosWhatsApp');
+  if (modal) {
+    modal.classList.add('hidden');
+  }
+}
+
+function sanitizarTelefoneWhatsApp(numero) {
+  if (!numero) return '';
+  let limpo = String(numero).replace(/\D/g, '');
+  if (limpo.startsWith('0')) limpo = limpo.substring(1);
+
+  if (limpo.length === 10) {
+    // DDD + 8 dígitos (ex: 1188887777 -> adiciona 9 e 55)
+    limpo = '55' + limpo.substring(0, 2) + '9' + limpo.substring(2);
+  } else if (limpo.length === 11) {
+    // DDD + 9 dígitos (ex: 11988887777 -> adiciona 55)
+    limpo = '55' + limpo;
+  } else if (limpo.length === 8 || limpo.length === 9) {
+    limpo = '55' + limpo;
+  }
+  return limpo;
+}
+
+function formatarTelefoneExibicao(numero) {
+  if (!numero) return '';
+  const limpo = String(numero).replace(/\D/g, '');
+  if (limpo.length === 11) {
+    return `(${limpo.substring(0, 2)}) ${limpo.substring(2, 7)}-${limpo.substring(7)}`;
+  }
+  if (limpo.length === 10) {
+    return `(${limpo.substring(0, 2)}) ${limpo.substring(2, 6)}-${limpo.substring(6)}`;
+  }
+  if (limpo.length === 13 && limpo.startsWith('55')) {
+    const sem55 = limpo.substring(2);
+    return `+55 (${sem55.substring(0, 2)}) ${sem55.substring(2, 7)}-${sem55.substring(7)}`;
+  }
+  return numero;
+}
+
+function renderizarListaContatos() {
+  const container = document.getElementById('listaContatosCardsContainer');
+  if (!container) return;
+
+  const dataHoje = formatarDataCurta(new Date());
+
+  // Filtra por termo de busca
+  let contatosFiltrados = listaContatos.filter(c => {
+    const nomeMatch = (c.nome || '').toLowerCase().includes(termoBuscaContatos);
+    const telMatch = (c.telefone || '').replace(/\D/g, '').includes(termoBuscaContatos);
+    return nomeMatch || telMatch;
+  });
+
+  // Filtra por status ativo
+  if (filtroContatosAtivo === 'pendentes') {
+    contatosFiltrados = contatosFiltrados.filter(c => !c.ultimoEnvio || c.ultimoEnvio.data !== dataHoje);
+  } else if (filtroContatosAtivo === 'enviados') {
+    contatosFiltrados = contatosFiltrados.filter(c => c.ultimoEnvio && c.ultimoEnvio.data === dataHoje);
+  }
+
+  atualizarBadgesContatos();
+
+  if (listaContatos.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-10 px-4 text-stone-400 space-y-3">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600">
+          <i data-lucide="user-plus" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-stone-700 dark:text-stone-300">Sua lista de contatos está vazia</p>
+          <p class="text-xs text-stone-500 max-w-xs mx-auto mt-1">
+            Importe os contatos direto do seu celular, adicione manualmente ou envie um arquivo de contatos.
+          </p>
+        </div>
+        <div class="flex items-center justify-center gap-2 pt-1">
+          <button onclick="importarContatosDoCelular()" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold shadow hover:bg-emerald-500 transition flex items-center gap-1.5">
+            <i data-lucide="smartphone" class="w-4 h-4"></i>
+            Importar do Celular
+          </button>
+        </div>
+      </div>
+    `;
+    inicializarLucide();
+    return;
+  }
+
+  if (contatosFiltrados.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-8 text-stone-400">
+        <i data-lucide="search-x" class="w-8 h-8 mx-auto mb-1 opacity-50"></i>
+        <p class="text-xs font-medium">Nenhum contato encontrado com este filtro.</p>
+      </div>
+    `;
+    inicializarLucide();
+    return;
+  }
+
+  // Gera HTML dos cartões de contato
+  container.innerHTML = contatosFiltrados.map((contato) => {
+    const enviadoHoje = contato.ultimoEnvio && contato.ultimoEnvio.data === dataHoje;
+    const iniciais = (contato.nome || 'C')
+      .split(' ')
+      .map(p => p[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+
+    const coresGradientes = [
+      'from-emerald-500 to-teal-600',
+      'from-amber-500 to-amber-700',
+      'from-blue-500 to-indigo-600',
+      'from-purple-500 to-pink-600'
+    ];
+    const hash = (contato.nome || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const gradiente = coresGradientes[hash % coresGradientes.length];
+
+    return `
+      <div class="p-3 sm:p-3.5 rounded-2xl border ${enviadoHoje ? 'border-emerald-300/80 bg-emerald-50/40 dark:border-emerald-900/60 dark:bg-emerald-950/20' : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-800/80'} shadow-xs flex items-center justify-between gap-2.5 transition hover:border-emerald-400">
+        
+        <!-- Avatar e Info -->
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr ${gradiente} flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-xs">
+            ${iniciais}
+          </div>
+          <div class="min-w-0">
+            <h4 class="font-bold text-xs sm:text-sm text-stone-900 dark:text-stone-100 truncate flex items-center gap-1.5">
+              ${contato.nome}
+              ${enviadoHoje ? '<span class="text-emerald-600 dark:text-emerald-400 font-normal text-[10px] bg-emerald-100 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded-full">✓ Enviado</span>' : ''}
+            </h4>
+            <p class="text-[11px] text-stone-500 dark:text-stone-400 truncate">
+              ${formatarTelefoneExibicao(contato.telefone)}
+            </p>
+            ${enviadoHoje ? `
+              <span class="text-[10px] text-emerald-700 dark:text-emerald-400 flex items-center gap-1 mt-0.5">
+                <i data-lucide="check-check" class="w-3 h-3"></i>
+                Enviado hoje às ${contato.ultimoEnvio.hora || ''}
+              </span>
+            ` : `
+              <span class="text-[10px] text-amber-700 dark:text-amber-400 flex items-center gap-1 mt-0.5">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                Pendente de envio hoje
+              </span>
+            `}
+          </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex items-center gap-1 shrink-0">
+          <!-- Botão Enviar WhatsApp -->
+          <button onclick="enviarDevocionalParaContato('${contato.id}')" class="py-2 px-3 rounded-xl ${enviadoHoje ? 'bg-emerald-700 hover:bg-emerald-600' : 'bg-emerald-600 hover:bg-emerald-500'} text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition" title="Enviar devocional no WhatsApp para este contato">
+            <i data-lucide="message-circle" class="w-4 h-4 fill-current"></i>
+            <span class="hidden sm:inline">${enviadoHoje ? 'Reenviar' : 'Enviar'}</span>
+          </button>
+
+          <!-- Botão Excluir -->
+          <button onclick="excluirContato('${contato.id}')" class="p-2 rounded-xl text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-stone-700 transition" title="Remover contato da lista">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+    `;
+  }).join('');
+
+  inicializarLucide();
+}
+
+function enviarDevocionalParaContato(contatoId) {
+  const contato = listaContatos.find(c => String(c.id) === String(contatoId));
+  if (!contato) return;
+
+  const numeroSanitizado = sanitizarTelefoneWhatsApp(contato.telefone);
+  if (!numeroSanitizado) {
+    exibirToast('Número de telefone inválido para este contato.');
+    return;
+  }
+
+  // Marca como enviado hoje
+  const dataHoje = formatarDataCurta(new Date());
+  const horaAgora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  contato.ultimoEnvio = { data: dataHoje, hora: horaAgora };
+
+  salvarContatosStorage();
+  renderizarListaContatos();
+
+  const texto = montarMensagemFormatada();
+  const urlEncoded = encodeURIComponent(texto);
+  const whatsappUrl = `https://api.whatsapp.com/send?phone=${numeroSanitizado}&text=${urlEncoded}`;
+
+  exibirToast(`✓ Abrindo WhatsApp para ${contato.nome}...`);
+  window.open(whatsappUrl, '_blank');
+}
+
+function enviarProximoPendente() {
+  const dataHoje = formatarDataCurta(new Date());
+  const pendente = listaContatos.find(c => !c.ultimoEnvio || c.ultimoEnvio.data !== dataHoje);
+
+  if (pendente) {
+    enviarDevocionalParaContato(pendente.id);
+  } else {
+    exibirToast('🎉 Glória a Deus! Todos os contatos da lista já receberam o devocional de hoje.');
+  }
+}
+
+async function importarContatosDoCelular() {
+  if ('contacts' in navigator && 'ContactsManager' in window) {
+    try {
+      const props = ['name', 'tel'];
+      const opts = { multiple: true };
+      const contatosSelecionados = await navigator.contacts.select(props, opts);
+
+      if (contatosSelecionados && contatosSelecionados.length > 0) {
+        let adicionados = 0;
+        for (const c of contatosSelecionados) {
+          const nome = (c.name && c.name[0]) ? c.name[0] : 'Contato';
+          const telefones = c.tel || [];
+          for (const t of telefones) {
+            if (t && adicionarContatoInterno(nome, t)) {
+              adicionados++;
+            }
+          }
+        }
+        salvarContatosStorage();
+        renderizarListaContatos();
+        exibirToast(`✓ ${adicionados} contato(s) importado(s) do seu celular!`);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        exibirToast('Não foi possível acessar a lista de contatos do aparelho.');
+      }
+    }
+  } else {
+    // Se não for suportado pelo navegador atual (ex: iPhone Safari ou desktop)
+    exibirToast('💡 Dica: No iPhone ou PC, use o botão "Arquivo .VCF" ou "Colar Lista" para importar!');
+    const painelColar = document.getElementById('painelColarLote');
+    if (painelColar) painelColar.classList.remove('hidden');
+  }
+}
+
+function importarArquivoVCF(file) {
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const conteudo = e.target.result;
+    let adicionados = 0;
+
+    // Parser de vCard / CSV
+    if (file.name.endsWith('.csv') || file.name.endsWith('.txt')) {
+      const linhas = conteudo.split(/\r?\n/);
+      for (const linha of linhas) {
+        const partes = linha.split(/[,;\t]/);
+        if (partes.length >= 2) {
+          const nome = partes[0].trim();
+          const tel = partes[1].trim();
+          if (nome && tel && adicionarContatoInterno(nome, tel)) {
+            adicionados++;
+          }
+        }
+      }
+    } else {
+      // Formato vCard (.vcf)
+      const vcards = conteudo.split(/BEGIN:VCARD/i);
+      for (const card of vcards) {
+        if (!card.trim()) continue;
+        const nomeMatch = card.match(/FN(?:;[^:]*)?:([^\r\n]+)/i) || card.match(/N(?:;[^:]*)?:([^\r\n]+)/i);
+        const telMatch = card.match(/TEL(?:;[^:]*)?:([^\r\n]+)/i);
+
+        if (telMatch) {
+          let nome = nomeMatch ? nomeMatch[1].replace(/;/g, ' ').trim() : 'Contato';
+          const tel = telMatch[1].trim();
+          if (adicionarContatoInterno(nome, tel)) {
+            adicionados++;
+          }
+        }
+      }
+    }
+
+    salvarContatosStorage();
+    renderizarListaContatos();
+    exibirToast(`✓ ${adicionados} contato(s) importado(s) do arquivo com sucesso!`);
+  };
+  reader.readAsText(file);
+}
+
+function processarColarLote() {
+  const textarea = document.getElementById('textareaColarLote');
+  if (!textarea) return;
+
+  const texto = textarea.value.trim();
+  if (!texto) {
+    exibirToast('Por favor, cole pelo menos um contato.');
+    return;
+  }
+
+  const linhas = texto.split(/\r?\n/);
+  let adicionados = 0;
+
+  for (const linha of linhas) {
+    if (!linha.trim()) continue;
+    const partes = linha.split(/[,;\t-]/);
+    if (partes.length >= 2) {
+      const nome = partes[0].trim();
+      const tel = partes.slice(1).join('').trim();
+      if (adicionarContatoInterno(nome, tel)) {
+        adicionados++;
+      }
+    } else {
+      const tel = linha.trim();
+      if (adicionarContatoInterno('Contato', tel)) {
+        adicionados++;
+      }
+    }
+  }
+
+  textarea.value = '';
+  document.getElementById('painelColarLote')?.classList.add('hidden');
+  salvarContatosStorage();
+  renderizarListaContatos();
+  exibirToast(`✓ ${adicionados} contato(s) adicionado(s) com sucesso!`);
+}
+
+function salvarNovoContatoManual() {
+  const inputNome = document.getElementById('inputNovoNome');
+  const inputTel = document.getElementById('inputNovoTelefone');
+
+  const nome = inputNome ? inputNome.value.trim() : '';
+  const tel = inputTel ? inputTel.value.trim() : '';
+
+  if (!nome) {
+    exibirToast('Por favor, digite o nome do contato.');
+    return;
+  }
+  if (!tel) {
+    exibirToast('Por favor, digite o telefone / WhatsApp do contato.');
+    return;
+  }
+
+  const adicionado = adicionarContatoInterno(nome, tel);
+  if (adicionado) {
+    inputNome.value = '';
+    inputTel.value = '';
+    document.getElementById('painelNovoContato')?.classList.add('hidden');
+    salvarContatosStorage();
+    renderizarListaContatos();
+    exibirToast(`✓ Contato ${nome} cadastrado com sucesso!`);
+  } else {
+    exibirToast('Este número de telefone já está cadastrado.');
+  }
+}
+
+function adicionarContatoInterno(nome, telefone) {
+  const limpo = sanitizarTelefoneWhatsApp(telefone);
+  if (!limpo || limpo.length < 8) return false;
+
+  // Evita duplicatas exatas pelo número sanitizado
+  const existe = listaContatos.some(c => sanitizarTelefoneWhatsApp(c.telefone) === limpo);
+  if (existe) return false;
+
+  listaContatos.push({
+    id: 'ct_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+    nome: nome || 'Contato',
+    telefone: telefone,
+    ultimoEnvio: null
+  });
+  return true;
+}
+
+function excluirContato(id) {
+  const index = listaContatos.findIndex(c => String(c.id) === String(id));
+  if (index >= 0) {
+    const nome = listaContatos[index].nome;
+    listaContatos.splice(index, 1);
+    salvarContatosStorage();
+    renderizarListaContatos();
+    exibirToast(`Contato ${nome} removido.`);
+  }
+}
+
+function zerarStatusEnviosHoje() {
+  const dataHoje = formatarDataCurta(new Date());
+  listaContatos.forEach(c => {
+    if (c.ultimoEnvio && c.ultimoEnvio.data === dataHoje) {
+      c.ultimoEnvio = null;
+    }
+  });
+  salvarContatosStorage();
+  renderizarListaContatos();
+  exibirToast('Status de envios de hoje zerado para todos os contatos!');
 }

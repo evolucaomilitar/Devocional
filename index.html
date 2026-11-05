@@ -175,17 +175,24 @@
         </div>
 
         <!-- Botões de Ação Imediata -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <!-- WhatsApp Button -->
-          <button id="btnShareWhatsAppTopo" class="w-full flex items-center justify-center gap-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-emerald-950/20 active:scale-[0.98] transition">
-            <i data-lucide="message-circle" class="w-5 h-5 fill-current"></i>
-            <span>Enviar no WhatsApp</span>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <!-- WhatsApp Geral -->
+          <button id="btnShareWhatsAppTopo" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-3 rounded-xl shadow-md shadow-emerald-950/20 active:scale-[0.98] transition text-xs sm:text-sm">
+            <i data-lucide="message-circle" class="w-4 h-4 sm:w-5 sm:h-5 fill-current"></i>
+            <span>WhatsApp Geral</span>
+          </button>
+
+          <!-- WhatsApp para Contatos Salvos -->
+          <button id="btnAbrirContatosTopo" class="w-full flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white font-semibold py-3 px-3 rounded-xl shadow-md shadow-emerald-950/20 active:scale-[0.98] transition text-xs sm:text-sm border border-emerald-400/30">
+            <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span>Enviar p/ Contatos</span>
+            <span id="badgeQtdContatosTopo" class="px-1.5 py-0.5 rounded-full bg-white text-emerald-800 text-[10px] font-bold">0</span>
           </button>
 
           <!-- Instagram Button -->
-          <button id="btnAbrirModalInstagramTopo" class="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white font-semibold py-3 px-4 rounded-xl shadow-md active:scale-[0.98] transition">
-            <i data-lucide="instagram" class="w-5 h-5"></i>
-            <span>Criar Imagem p/ Instagram</span>
+          <button id="btnAbrirModalInstagramTopo" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white font-semibold py-3 px-3 rounded-xl shadow-md active:scale-[0.98] transition text-xs sm:text-sm">
+            <i data-lucide="instagram" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span>Card Instagram</span>
           </button>
         </div>
       </div>
@@ -318,17 +325,23 @@
           "Ide por todo o mundo e pregai o evangelho a toda criatura." — Marcos 16:15
         </p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <!-- Botão WhatsApp com mensagem completa -->
-          <button id="btnShareWhatsAppBottom" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 px-4 rounded-xl shadow-md active:scale-[0.98] transition">
-            <i data-lucide="message-circle" class="w-5 h-5 fill-current"></i>
-            <span>Compartilhar no WhatsApp</span>
+          <button id="btnShareWhatsAppBottom" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 px-3 rounded-xl shadow-md active:scale-[0.98] transition text-xs sm:text-sm">
+            <i data-lucide="message-circle" class="w-4 h-4 sm:w-5 sm:h-5 fill-current"></i>
+            <span>WhatsApp Geral</span>
+          </button>
+
+          <!-- Botão Enviar para Contatos -->
+          <button id="btnAbrirContatosBottom" class="flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3.5 px-3 rounded-xl shadow-md active:scale-[0.98] transition text-xs sm:text-sm border border-emerald-400/30">
+            <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span>Enviar p/ Contatos</span>
           </button>
 
           <!-- Botão Instagram Card -->
-          <button id="btnAbrirModalInstagramBottom" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white font-semibold py-3.5 px-4 rounded-xl shadow-md active:scale-[0.98] transition">
-            <i data-lucide="instagram" class="w-5 h-5"></i>
-            <span>Criar Card p/ Instagram</span>
+          <button id="btnAbrirModalInstagramBottom" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white font-semibold py-3.5 px-3 rounded-xl shadow-md active:scale-[0.98] transition text-xs sm:text-sm">
+            <i data-lucide="instagram" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            <span>Card p/ Instagram</span>
           </button>
         </div>
 
@@ -534,6 +547,150 @@
     </div>
   </div>
 
+  <!-- MODAL: LISTA DE CONTATOS DO WHATSAPP -->
+  <div id="modalContatosWhatsApp" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-stone-900 rounded-3xl max-w-xl w-full p-5 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-2xl space-y-4 my-auto max-h-[92vh] flex flex-col">
+      
+      <!-- Topo do Modal -->
+      <div class="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/20">
+            <i data-lucide="users" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-stone-900 dark:text-white text-base">Meus Contatos do WhatsApp</h3>
+            <p class="text-xs text-stone-500">Selecione para enviar o devocional de hoje</p>
+          </div>
+        </div>
+        <button id="btnFecharModalContatos" class="p-2 rounded-xl text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Barra de Ações Rápidas de Importação -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <!-- Botão Importar do Celular (Contact Picker API) -->
+        <button id="btnImportarContatosNativo" class="py-2.5 px-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-emerald-100 transition shadow-xs">
+          <i data-lucide="smartphone" class="w-4 h-4 shrink-0"></i>
+          <span class="truncate">Do Celular</span>
+        </button>
+
+        <!-- Botão Arquivo .vcf -->
+        <input type="file" id="inputArquivoVCF" accept=".vcf,.vcard,.csv,.txt" class="hidden">
+        <button id="btnTriggerArquivoVCF" class="py-2.5 px-2 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-stone-100 transition">
+          <i data-lucide="file-up" class="w-4 h-4 shrink-0"></i>
+          <span class="truncate">Arquivo .VCF</span>
+        </button>
+
+        <!-- Botão Novo Manual -->
+        <button id="btnAbrirFormNovoContato" class="py-2.5 px-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-amber-100 transition">
+          <i data-lucide="user-plus" class="w-4 h-4 shrink-0"></i>
+          <span class="truncate">+ Contato</span>
+        </button>
+
+        <!-- Botão Colar em Lote -->
+        <button id="btnAbrirFormColarLote" class="py-2.5 px-2 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center justify-center gap-1.5 hover:bg-stone-100 transition">
+          <i data-lucide="clipboard-list" class="w-4 h-4 shrink-0"></i>
+          <span class="truncate">Colar Lista</span>
+        </button>
+      </div>
+
+      <!-- PAINEL RETRÁTIL: FORMULÁRIO NOVO CONTATO -->
+      <div id="painelNovoContato" class="hidden p-4 rounded-2xl bg-amber-50/70 dark:bg-stone-800/80 border border-amber-200 dark:border-stone-700 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider flex items-center gap-1">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> Cadastrar Novo Contato
+          </span>
+          <button id="btnFecharFormNovoContato" class="text-xs text-stone-400 hover:text-stone-600">Fechar</button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <input type="text" id="inputNovoNome" placeholder="Nome do contato (ex: Irmão Carlos)" class="w-full rounded-xl border border-stone-300 dark:border-stone-700 p-2.5 text-xs bg-white dark:bg-stone-900 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <input type="tel" id="inputNovoTelefone" placeholder="WhatsApp com DDD (ex: 11987654321)" class="w-full rounded-xl border border-stone-300 dark:border-stone-700 p-2.5 text-xs bg-white dark:bg-stone-900 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+        <button id="btnSalvarNovoContato" class="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow transition">
+          Salvar Contato
+        </button>
+      </div>
+
+      <!-- PAINEL RETRÁTIL: COLAR EM LOTE -->
+      <div id="painelColarLote" class="hidden p-4 rounded-2xl bg-emerald-50/70 dark:bg-stone-800/80 border border-emerald-200 dark:border-stone-700 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-1">
+            <i data-lucide="clipboard-list" class="w-3.5 h-3.5"></i> Colar Vários Contatos de Uma Vez
+          </span>
+          <button id="btnFecharFormColarLote" class="text-xs text-stone-400 hover:text-stone-600">Fechar</button>
+        </div>
+        <p class="text-[11px] text-stone-600 dark:text-stone-400">
+          Cole no formato: <strong>Nome, Telefone</strong> (um contato por linha).
+        </p>
+        <textarea id="textareaColarLote" rows="3" placeholder="Carlos Silva, 11999998888&#10;Maria Santos, 21988887777" class="w-full rounded-xl border border-stone-300 dark:border-stone-700 p-2.5 text-xs bg-white dark:bg-stone-900 text-stone-900 dark:text-white font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+        <button id="btnProcessarColarLote" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow transition">
+          Importar Todos os Contatos
+        </button>
+      </div>
+
+      <!-- Barra de Estatísticas & Fila Rápida -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-2xl bg-stone-100/80 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="font-medium text-stone-700 dark:text-stone-300">
+            <strong id="contadorTotalContatos">0</strong> contatos
+          </span>
+          <span class="text-stone-300 dark:text-stone-600">•</span>
+          <span class="text-emerald-600 dark:text-emerald-400 font-semibold">
+            <strong id="contadorEnviadosHoje">0</strong> enviados hoje
+          </span>
+          <span class="text-stone-300 dark:text-stone-600">•</span>
+          <span class="text-amber-700 dark:text-amber-400 font-medium">
+            <strong id="contadorPendentesHoje">0</strong> pendentes
+          </span>
+        </div>
+
+        <button id="btnEnviarProximoPendente" class="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center gap-1 shadow-sm transition">
+          <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+          <span>Enviar p/ Próximo Pendente</span>
+        </button>
+      </div>
+
+      <!-- Barra de Busca e Filtros de Status -->
+      <div class="space-y-2">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"></i>
+          <input type="text" id="inputBuscaContatos" placeholder="Buscar por nome ou número..." class="w-full rounded-xl border border-stone-300 dark:border-stone-700 pl-9 pr-8 py-2 text-xs bg-white dark:bg-stone-800 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <button id="btnLimparBuscaContatos" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 hidden">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Filtros Rápidos -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-xs">
+          <button data-filtro="todos" class="btnFiltroContatos px-3 py-1 rounded-xl font-bold bg-emerald-600 text-white transition">
+            Todos (<span id="tagQtdTodos">0</span>)
+          </button>
+          <button data-filtro="pendentes" class="btnFiltroContatos px-3 py-1 rounded-xl font-medium bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 transition">
+            ⏳ Pendentes Hoje (<span id="tagQtdPendentes">0</span>)
+          </button>
+          <button data-filtro="enviados" class="btnFiltroContatos px-3 py-1 rounded-xl font-medium bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 transition">
+            ✅ Já Enviados (<span id="tagQtdEnviados">0</span>)
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de Contatos com Scroll -->
+      <div id="listaContatosCardsContainer" class="overflow-y-auto space-y-2.5 custom-scrollbar flex-1 pr-1 min-h-[220px]">
+        <!-- Preenchido dinamicamente via JS -->
+      </div>
+
+      <!-- Rodapé do Modal -->
+      <div class="pt-2 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between text-[11px] text-stone-500">
+        <span>O devocional é enviado diretamente pelo seu WhatsApp.</span>
+        <button id="btnLimparHistoricoEnvios" class="text-stone-400 hover:text-red-500 transition underline">
+          Zerar status de envio de hoje
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- MODAL: INSTALAR APLICATIVO NO CELULAR (PWA) -->
   <div id="modalInstalarApp" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white dark:bg-stone-900 rounded-3xl max-w-md w-full p-6 border border-stone-200 dark:border-stone-800 shadow-2xl space-y-5">
@@ -607,26 +764,32 @@
   </div>
 
   <!-- BARRA DE NAVEGAÇÃO INFERIOR FIXA (MOBILE-FRIENDLY) -->
-  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-t border-amber-200/60 dark:border-stone-800 py-2 px-4 shadow-lg md:hidden">
-    <div class="max-w-md mx-auto grid grid-cols-4 gap-1 text-center">
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-t border-amber-200/60 dark:border-stone-800 py-2 px-2 shadow-lg md:hidden">
+    <div class="max-w-md mx-auto grid grid-cols-5 gap-1 text-center">
       
-      <button id="navHoje" class="flex flex-col items-center gap-1 text-amber-700 dark:text-amber-400 font-semibold text-[11px] py-1">
-        <i data-lucide="sun" class="w-5 h-5"></i>
+      <button id="navHoje" class="flex flex-col items-center gap-1 text-amber-700 dark:text-amber-400 font-semibold text-[10px] py-1">
+        <i data-lucide="sun" class="w-4 h-4"></i>
         <span>Hoje</span>
       </button>
 
-      <button id="navCalendario" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-amber-600 font-medium text-[11px] py-1">
-        <i data-lucide="calendar" class="w-5 h-5"></i>
-        <span>Datas</span>
+      <button id="navContatos" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-emerald-600 font-medium text-[10px] py-1 relative">
+        <i data-lucide="users" class="w-4 h-4"></i>
+        <span>Contatos</span>
+        <span id="badgeQtdContatosNav" class="absolute -top-1 right-2 w-4 h-4 rounded-full bg-emerald-600 text-white text-[9px] font-bold hidden items-center justify-center">0</span>
       </button>
 
-      <button id="navInstagram" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-purple-600 font-medium text-[11px] py-1">
-        <i data-lucide="instagram" class="w-5 h-5"></i>
+      <button id="navInstagram" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-purple-600 font-medium text-[10px] py-1">
+        <i data-lucide="instagram" class="w-4 h-4"></i>
         <span>Card Insta</span>
       </button>
 
-      <button id="navFavoritos" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-red-500 font-medium text-[11px] py-1">
-        <i data-lucide="heart" class="w-5 h-5"></i>
+      <button id="navCalendario" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-amber-600 font-medium text-[10px] py-1">
+        <i data-lucide="calendar" class="w-4 h-4"></i>
+        <span>Datas</span>
+      </button>
+
+      <button id="navFavoritos" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-red-500 font-medium text-[10px] py-1">
+        <i data-lucide="heart" class="w-4 h-4"></i>
         <span>Favoritos</span>
       </button>
 
