@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Palavra Diária - Devocional Bíblico & Compartilhamento</title>
+  <meta name="description" content="Devocionais diários com bases bíblicas e mensagens motivacionais com compartilhamento fácil para WhatsApp e Instagram.">
+  <meta name="theme-color" content="#b45309">
+  
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dourado: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              200: '#fde68a',
+              300: '#fcd34d',
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+              800: '#92400e',
+              900: '#78350f',
+            },
+            celeste: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Suavização de scroll e seleção */
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(217, 119, 6, 0.4);
+      border-radius: 9999px;
+    }
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.88; transform: scale(1.02); }
+    }
+    .animate-pulse-soft {
+      animation: pulse-soft 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-amber-50/40 text-stone-800 dark:bg-stone-950 dark:text-stone-100 font-sans min-h-screen transition-colors duration-200 antialiased selection:bg-amber-200 selection:text-amber-900 pb-24 md:pb-12">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border-b border-amber-200/60 dark:border-stone-800 shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      
+      <!-- Logo e Título -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center text-white shadow-md shadow-amber-500/20">
+          <i data-lucide="book-open" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold font-serif tracking-tight text-stone-900 dark:text-white flex items-center gap-1.5">
+            Palavra Diária
+            <span class="text-xs font-sans font-semibold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">Fé & Luz</span>
+          </h1>
+          <p class="text-xs text-stone-500 dark:text-stone-400" id="headerSubData">Palavra de Deus para o seu dia</p>
+        </div>
+      </div>
+
+      <!-- Ações do Topo -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Botão Ouvir Áudio (TTS) -->
+        <button id="btnOuvirAudio" class="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-amber-100/70 dark:hover:bg-stone-800 transition flex items-center gap-1 text-xs font-medium" title="Ouvir Devocional">
+          <i data-lucide="volume-2" class="w-5 h-5 text-amber-600 dark:text-amber-400" id="audioIcon"></i>
+          <span class="hidden sm:inline" id="audioText">Ouvir</span>
+        </button>
+
+        <!-- Seletor de Calendário -->
+        <button id="btnAbrirCalendario" class="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-amber-100/70 dark:hover:bg-stone-800 transition" title="Escolher Data">
+          <i data-lucide="calendar" class="w-5 h-5 text-stone-700 dark:text-stone-300"></i>
+        </button>
+
+        <!-- Modo Escuro -->
+        <button id="btnToggleDark" class="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-amber-100/70 dark:hover:bg-stone-800 transition" title="Alternar Modo Escuro">
+          <i data-lucide="moon" class="w-5 h-5 hidden dark:block text-amber-400"></i>
+          <i data-lucide="sun" class="w-5 h-5 block dark:hidden text-amber-600"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- SELETOR RÁPIDO DE DATA (Hoje / Ontem / Próximo) -->
+  <div class="bg-amber-100/40 dark:bg-stone-900/50 border-b border-amber-200/40 dark:border-stone-800/80 py-2 px-4">
+    <div class="max-w-3xl mx-auto flex items-center justify-between text-xs sm:text-sm">
+      <button id="btnDiaAnterior" class="flex items-center gap-1 font-medium text-stone-600 dark:text-stone-400 hover:text-amber-700 transition px-2 py-1 rounded-lg hover:bg-amber-200/40">
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <span>Dia Anterior</span>
+      </button>
+
+      <div class="flex items-center gap-1.5 font-semibold text-amber-900 dark:text-amber-200">
+        <i data-lucide="calendar-days" class="w-4 h-4 text-amber-600"></i>
+        <span id="labelDataAtualTopo">Hoje, 17 de Outubro</span>
+      </div>
+
+      <button id="btnDiaProximo" class="flex items-center gap-1 font-medium text-stone-600 dark:text-stone-400 hover:text-amber-700 transition px-2 py-1 rounded-lg hover:bg-amber-200/40">
+        <span>Próximo Dia</span>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="max-w-3xl mx-auto px-4 py-5 space-y-6">
+
+    <!-- BARRA DE COMPARTILHAMENTO RÁPIDO NO TOPO (Destaque Principal) -->
+    <section class="bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 rounded-2xl p-4 text-white shadow-xl shadow-amber-900/10 relative overflow-hidden">
+      <!-- Decoração de fundo sutil -->
+      <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+      
+      <div class="relative z-10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+          <div>
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 text-xs font-semibold uppercase tracking-wider text-amber-100">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Espalhe a Palavra
+            </span>
+            <h2 class="text-lg font-bold mt-1 text-white">Compartilhe a bênção deste dia!</h2>
+            <p class="text-xs text-amber-100/90">Envie o devocional de hoje com a data para amigos, família e grupos.</p>
+          </div>
+        </div>
+
+        <!-- Botões de Ação Imediata -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- WhatsApp Button -->
+          <button id="btnShareWhatsAppTopo" class="w-full flex items-center justify-center gap-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-emerald-950/20 active:scale-[0.98] transition">
+            <i data-lucide="message-circle" class="w-5 h-5 fill-current"></i>
+            <span>Enviar no WhatsApp</span>
+          </button>
+
+          <!-- Instagram Button -->
+          <button id="btnAbrirModalInstagramTopo" class="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white font-semibold py-3 px-4 rounded-xl shadow-md active:scale-[0.98] transition">
+            <i data-lucide="instagram" class="w-5 h-5"></i>
+            <span>Criar Imagem p/ Instagram</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CARD PRINCIPAL DO DEVOCIONAL -->
+    <article class="bg-white dark:bg-stone-900 rounded-3xl p-5 sm:p-8 border border-amber-200/70 dark:border-stone-800 shadow-xl shadow-stone-200/30 dark:shadow-none space-y-6">
+
+      <!-- Cabeçalho do Card: Data do Dia & Tema -->
+      <div class="border-b border-amber-100 dark:border-stone-800 pb-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <span id="devocionalCategoria" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300">
+            <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+            Esperança & Fé
+          </span>
+          
+          <div class="flex items-center gap-2">
+            <!-- Botão Favoritar -->
+            <button id="btnFavoritar" class="p-2 rounded-full text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-stone-800 transition" title="Salvar como Favorito">
+              <i data-lucide="heart" class="w-5 h-5" id="heartIcon"></i>
+            </button>
+            <!-- Botão Copiar Texto -->
+            <button id="btnCopiarTexto" class="p-2 rounded-full text-stone-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-stone-800 transition" title="Copiar Mensagem Completa">
+              <i data-lucide="copy" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Data do Dia em Formato Extenso e Nobre -->
+        <div class="flex items-center gap-2 text-stone-500 dark:text-stone-400 text-sm font-medium">
+          <i data-lucide="calendar" class="w-4 h-4 text-amber-600"></i>
+          <span id="devocionalDataCompleta">Sábado, 17 de Outubro de 2026</span>
+        </div>
+
+        <!-- Título do Tema -->
+        <h2 id="devocionalTema" class="text-2xl sm:text-3xl font-bold font-serif text-stone-900 dark:text-stone-100 mt-2 tracking-tight">
+          Paz que Excede Todo Entendimento
+        </h2>
+      </div>
+
+      <!-- ILUSTRAÇÃO BÍBLICA DO DIA (ARTE IA DE JESUS) -->
+      <div id="containerArteJesusDevocional" class="relative rounded-2xl overflow-hidden shadow-md group border border-amber-200/60 dark:border-stone-800">
+        <img id="imgJesusDevocional" src="assets/jesus-bom-pastor.jpg" alt="Ilustração de Jesus" class="w-full h-48 sm:h-64 object-cover object-top transition duration-700 group-hover:scale-105">
+        <div class="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent flex items-end p-4">
+          <div class="text-white">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/90 backdrop-blur-sm text-[10px] font-bold text-stone-950 uppercase tracking-wider mb-1 shadow">
+              <i data-lucide="sparkles" class="w-3 h-3"></i> Ilustração do Dia
+            </span>
+            <p id="legendaArteJesusDevocional" class="text-xs sm:text-sm font-semibold text-amber-100 font-serif">
+              Jesus, o Bom Pastor
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VERSÍCULO CHAVE (Destaque Nobre) -->
+      <section class="relative bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-transparent dark:from-amber-950/30 dark:via-stone-900 dark:to-transparent border-l-4 border-amber-600 rounded-2xl p-5 sm:p-6 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
+            <i data-lucide="quote" class="w-4 h-4"></i> Versículo do Dia
+          </span>
+          <button id="btnCopiarVersiculo" class="text-xs text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1 font-medium">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copiar
+          </button>
+        </div>
+        
+        <blockquote id="devocionalVersiculo" class="text-lg sm:text-xl font-serif italic text-stone-900 dark:text-amber-100 leading-relaxed">
+          "Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá. Não se turbe o vosso coração, nem se atemorize."
+        </blockquote>
+
+        <div class="text-right">
+          <cite id="devocionalReferencia" class="font-sans font-bold text-sm sm:text-base text-amber-700 dark:text-amber-400 not-italic">
+            — João 14:27
+          </cite>
+        </div>
+      </section>
+
+      <!-- REFLEXÃO BÍBLICA E MOTIVACIONAL -->
+      <section class="space-y-3">
+        <h3 class="text-base font-bold text-stone-800 dark:text-stone-200 flex items-center gap-2">
+          <i data-lucide="book-marked" class="w-5 h-5 text-amber-600"></i>
+          Reflexão para o seu Coração
+        </h3>
+        <div id="devocionalReflexao" class="text-stone-700 dark:text-stone-300 leading-relaxed text-base sm:text-lg space-y-3 font-sans font-normal">
+          <!-- Inserido dinamicamente via JS -->
+        </div>
+      </section>
+
+      <!-- ORAÇÃO DO DIA -->
+      <section class="bg-amber-50/70 dark:bg-stone-800/60 rounded-2xl p-5 border border-amber-200/50 dark:border-stone-700/60 space-y-2">
+        <h3 class="text-sm font-bold uppercase tracking-wide text-amber-900 dark:text-amber-300 flex items-center gap-2">
+          <i data-lucide="heart-handshake" class="w-4 h-4 text-amber-600"></i>
+          Oração do Dia
+        </h3>
+        <p id="devocionalOracao" class="text-stone-700 dark:text-stone-300 italic font-serif leading-relaxed text-base">
+          <!-- Inserido dinamicamente via JS -->
+        </p>
+      </section>
+
+      <!-- APLICAÇÃO PRÁTICA / ATITUDE DO DIA -->
+      <section class="bg-stone-100/70 dark:bg-stone-800/40 rounded-2xl p-4 flex items-start gap-3 border border-stone-200/50 dark:border-stone-700/40">
+        <div class="p-2 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-300 shrink-0 mt-0.5">
+          <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400">Palavra de Ação</h4>
+          <p id="devocionalAplicacao" class="text-stone-800 dark:text-stone-200 text-sm font-medium mt-0.5">
+            <!-- Inserido dinamicamente via JS -->
+          </p>
+        </div>
+      </section>
+
+      <!-- INSTAGRAM E ASSINATURA DO DEVOCIONAL -->
+      <section class="p-4 rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 dark:from-stone-800/80 dark:via-stone-800/60 dark:to-stone-800/40 border border-purple-200/60 dark:border-stone-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+        <a href="https://www.instagram.com/cultodoempreendedoruva" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-purple-800 dark:text-purple-300 hover:text-purple-950 dark:hover:text-purple-200 transition group">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition">
+            <i data-lucide="instagram" class="w-4 h-4"></i>
+          </div>
+          <span>Siga nosso Instagram: <strong class="underline decoration-pink-500 underline-offset-2">@cultodoempreendedoruva</strong></span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5 opacity-60"></i>
+        </a>
+        <div class="text-sm font-serif font-bold text-stone-800 dark:text-amber-200 italic sm:text-right">
+          Evangelista Rodolfo
+        </div>
+      </section>
+
+      <!-- BARRA DE COMPARTILHAMENTO COMPLETA NO FIM DO DEVOCIONAL -->
+      <div class="pt-4 border-t border-amber-100 dark:border-stone-800 space-y-3">
+        <p class="text-xs text-center text-stone-500 dark:text-stone-400 font-medium">
+          "Ide por todo o mundo e pregai o evangelho a toda criatura." — Marcos 16:15
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Botão WhatsApp com mensagem completa -->
+          <button id="btnShareWhatsAppBottom" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3.5 px-4 rounded-xl shadow-md active:scale-[0.98] transition">
+            <i data-lucide="message-circle" class="w-5 h-5 fill-current"></i>
+            <span>Compartilhar no WhatsApp</span>
+          </button>
+
+          <!-- Botão Instagram Card -->
+          <button id="btnAbrirModalInstagramBottom" class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white font-semibold py-3.5 px-4 rounded-xl shadow-md active:scale-[0.98] transition">
+            <i data-lucide="instagram" class="w-5 h-5"></i>
+            <span>Criar Card p/ Instagram</span>
+          </button>
+        </div>
+
+        <!-- Botões Secundários: Copiar e Salvar -->
+        <div class="flex items-center justify-center gap-2 pt-1">
+          <button id="btnCopiarTextoBottom" class="text-xs font-semibold px-4 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-amber-100 dark:hover:bg-stone-700 transition flex items-center gap-1.5">
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            Copiar Texto do Dia
+          </button>
+          <button id="btnFavoritarBottom" class="text-xs font-semibold px-4 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-red-50 dark:hover:bg-stone-700 transition flex items-center gap-1.5">
+            <i data-lucide="heart" class="w-3.5 h-3.5 text-red-500"></i>
+            Favoritar Mensagem
+          </button>
+        </div>
+      </div>
+
+    </article>
+
+    <!-- SEÇÃO DIÁRIO DE ORAÇÃO & REFLEXÃO PESSOAL -->
+    <section class="bg-white dark:bg-stone-900 rounded-3xl p-5 sm:p-7 border border-amber-200/70 dark:border-stone-800 shadow-md space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-bold font-serif text-stone-900 dark:text-white flex items-center gap-2">
+          <i data-lucide="feather" class="w-5 h-5 text-amber-600"></i>
+          Meu Diário de Oração de Hoje
+        </h3>
+        <span class="text-xs text-stone-400 font-sans">Salvo no seu dispositivo</span>
+      </div>
+      <p class="text-xs text-stone-500 dark:text-stone-400">
+        Escreva aqui o que Deus falou ao seu coração hoje ou o seu pedido especial de oração.
+      </p>
+
+      <textarea id="textoDiarioOracao" rows="3" placeholder="Hoje sinto gratidão por... Meu pedido a Deus é..." class="w-full rounded-2xl border border-stone-300 dark:border-stone-700 p-3.5 text-sm bg-amber-50/30 dark:bg-stone-800 text-stone-800 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+
+      <div class="flex items-center justify-between">
+        <span id="statusSalvoDiario" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium opacity-0 transition">
+          ✓ Anotação salva com amor!
+        </span>
+        <button id="btnSalvarDiario" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs flex items-center gap-1.5 shadow transition">
+          <i data-lucide="save" class="w-3.5 h-3.5"></i>
+          Salvar Anotação
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: GERADOR DE CARTÃO PARA INSTAGRAM (Stories & Post) -->
+  <div id="modalInstagram" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-stone-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-2xl space-y-4 my-auto">
+      
+      <!-- Topo do Modal -->
+      <div class="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 via-pink-600 to-amber-500 flex items-center justify-center text-white">
+            <i data-lucide="instagram" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-stone-900 dark:text-white text-base">Cartão para Instagram</h3>
+            <p class="text-xs text-stone-500">Com a data do dia e versículo pronto</p>
+          </div>
+        </div>
+        <button id="btnFecharModalInstagram" class="p-2 rounded-xl text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Configurações do Cartão -->
+      <div class="space-y-3">
+        
+        <!-- Alternador Formato: Stories (9:16) ou Feed (1:1) -->
+        <div>
+          <label class="text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1.5 block">Escolha o Formato:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnFormatoStory" class="py-2 px-3 rounded-xl border-2 border-amber-600 bg-amber-50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 text-xs font-bold flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="smartphone" class="w-4 h-4"></i>
+              Stories (9:16)
+            </button>
+            <button id="btnFormatoFeed" class="py-2 px-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="square" class="w-4 h-4"></i>
+              Feed / Post (1:1)
+            </button>
+          </div>
+        </div>
+
+        <!-- Seletor de Tema Visual de Fundo -->
+        <div>
+          <label class="text-xs font-semibold text-stone-600 dark:text-stone-300 mb-1.5 block">Estilo de Fundo:</label>
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+            <button data-tema="arte-jesus" class="btnTemaCard px-3 py-1.5 rounded-xl text-xs font-bold border-2 border-amber-600 bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 shrink-0 flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-600"></i>
+              <span>🎨 Arte de Jesus (IA)</span>
+            </button>
+            <button data-tema="aurora" class="btnTemaCard px-3 py-1.5 rounded-xl text-xs font-medium border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
+              🌅 Amanhecer Dourado
+            </button>
+            <button data-tema="celestial" class="btnTemaCard px-3 py-1.5 rounded-xl text-xs font-medium border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
+              🌌 Céu Estrelado
+            </button>
+            <button data-tema="oliva" class="btnTemaCard px-3 py-1.5 rounded-xl text-xs font-medium border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
+              🌿 Verde Esperança
+            </button>
+            <button data-tema="minimalista" class="btnTemaCard px-3 py-1.5 rounded-xl text-xs font-medium border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 shrink-0">
+              📜 Pergaminho Nobre
+            </button>
+          </div>
+        </div>
+
+        <!-- Seletor de Ilustração Específica de Jesus -->
+        <div id="seletorSubArtesJesus" class="p-2.5 rounded-2xl bg-amber-50/80 dark:bg-stone-800/80 border border-amber-200 dark:border-stone-700 space-y-1.5">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-stone-700 dark:text-stone-300">
+            <span>Ilustração bíblica:</span>
+            <span id="nomeArteJesusAtual" class="text-amber-800 dark:text-amber-300 font-bold">Jesus, o Bom Pastor</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5 text-center">
+            <button data-arte="pastor" class="btnTrocarArteJesus py-1.5 px-1 rounded-xl border border-amber-500 bg-white dark:bg-stone-900 text-[11px] font-bold text-amber-900 dark:text-amber-200 transition truncate shadow-xs">
+              🐑 Bom Pastor
+            </button>
+            <button data-arte="tempestade" class="btnTrocarArteJesus py-1.5 px-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/60 text-[11px] font-medium text-stone-700 dark:text-stone-300 transition truncate">
+              🌊 Tempestade
+            </button>
+            <button data-arte="bracosAbertos" class="btnTrocarArteJesus py-1.5 px-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/60 text-[11px] font-medium text-stone-700 dark:text-stone-300 transition truncate">
+              🕊️ Amor & Graça
+            </button>
+            <button data-arte="oracao" class="btnTrocarArteJesus py-1.5 px-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/60 text-[11px] font-medium text-stone-700 dark:text-stone-300 transition truncate">
+              🌄 Em Oração
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ÁREA DE PRÉVIA DO CANVAS -->
+      <div class="bg-stone-100 dark:bg-stone-950 p-2 rounded-2xl flex items-center justify-center overflow-hidden border border-stone-200 dark:border-stone-800">
+        <canvas id="canvasPreview" class="max-h-[360px] sm:max-h-[420px] w-auto rounded-xl shadow-lg border border-black/10"></canvas>
+      </div>
+
+      <!-- BOTÕES DE BAIXAR E COMPARTILHAR IMAGEM -->
+      <div class="space-y-2 pt-1">
+        <button id="btnBaixarImagem" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-600 hover:opacity-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-purple-900/10 active:scale-[0.98] transition text-sm">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>Baixar Imagem em Alta Resolução (1080p)</span>
+        </button>
+
+        <button id="btnCompartilharDiretoInstagram" class="w-full flex items-center justify-center gap-2 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-100 font-semibold py-2.5 px-4 rounded-xl text-xs active:scale-[0.98] transition">
+          <i data-lucide="share-2" class="w-4 h-4 text-purple-600"></i>
+          <span>Compartilhar Imagem (Abrir no Instagram)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: CALENDÁRIO / HISTÓRICO DE DEVOCIONAIS -->
+  <div id="modalCalendario" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-stone-900 rounded-3xl max-w-md w-full p-5 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-2xl space-y-4">
+      
+      <div class="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+        <h3 class="font-bold text-stone-900 dark:text-white text-base flex items-center gap-2">
+          <i data-lucide="calendar" class="w-5 h-5 text-amber-600"></i>
+          Escolher Devocional por Data
+        </h3>
+        <button id="btnFecharModalCalendario" class="p-2 rounded-xl text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <label class="text-xs font-semibold text-stone-600 dark:text-stone-300 block">Selecione o Dia:</label>
+        <input type="date" id="inputDataSelecionada" class="w-full rounded-xl border border-stone-300 dark:border-stone-700 p-3 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-medium text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+
+        <!-- Botões de Atalho -->
+        <div class="flex items-center gap-2 pt-1">
+          <button id="btnAtalhoHoje" class="flex-1 py-2 px-3 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 text-xs font-bold transition">
+            Voltar para Hoje
+          </button>
+          <button id="btnConfirmarData" class="flex-1 py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition shadow">
+            Ver Devocional
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: MEUS FAVORITOS -->
+  <div id="modalFavoritos" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-stone-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 border border-stone-200 dark:border-stone-800 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+      
+      <div class="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+        <h3 class="font-bold text-stone-900 dark:text-white text-base flex items-center gap-2">
+          <i data-lucide="heart" class="w-5 h-5 text-red-500 fill-red-500"></i>
+          Mensagens Favoritas
+        </h3>
+        <button id="btnFecharModalFavoritos" class="p-2 rounded-xl text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div id="listaFavoritosContainer" class="overflow-y-auto space-y-3 custom-scrollbar flex-1 pr-1">
+        <!-- Inserido dinamicamente via JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST DE NOTIFICAÇÃO (Feedback ao copiar ou salvar) -->
+  <div id="toastMensagem" class="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-stone-900/95 text-white dark:bg-white dark:text-stone-900 text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 pointer-events-none opacity-0 translate-y-4 transition-all duration-300">
+    <i data-lucide="check" class="w-4 h-4 text-emerald-400 dark:text-emerald-600"></i>
+    <span id="toastTexto">Mensagem copiada para a área de transferência!</span>
+  </div>
+
+  <!-- BARRA DE NAVEGAÇÃO INFERIOR FIXA (MOBILE-FRIENDLY) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-t border-amber-200/60 dark:border-stone-800 py-2 px-4 shadow-lg md:hidden">
+    <div class="max-w-md mx-auto grid grid-cols-4 gap-1 text-center">
+      
+      <button id="navHoje" class="flex flex-col items-center gap-1 text-amber-700 dark:text-amber-400 font-semibold text-[11px] py-1">
+        <i data-lucide="sun" class="w-5 h-5"></i>
+        <span>Hoje</span>
+      </button>
+
+      <button id="navCalendario" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-amber-600 font-medium text-[11px] py-1">
+        <i data-lucide="calendar" class="w-5 h-5"></i>
+        <span>Datas</span>
+      </button>
+
+      <button id="navInstagram" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-purple-600 font-medium text-[11px] py-1">
+        <i data-lucide="instagram" class="w-5 h-5"></i>
+        <span>Card Insta</span>
+      </button>
+
+      <button id="navFavoritos" class="flex flex-col items-center gap-1 text-stone-500 dark:text-stone-400 hover:text-red-500 font-medium text-[11px] py-1">
+        <i data-lucide="heart" class="w-5 h-5"></i>
+        <span>Favoritos</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- SCRIPTS -->
+  <script src="devocionais.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
