@@ -7,8 +7,13 @@
   <meta name="description" content="Devocionais diários com bases bíblicas e mensagens motivacionais com compartilhamento fácil para WhatsApp e Instagram.">
   <meta name="theme-color" content="#b45309">
   
-  <!-- Web App Manifest -->
+  <!-- Web App Manifest & Ícones -->
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Palavra Diária">
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -103,6 +108,12 @@
 
       <!-- Ações do Topo -->
       <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Botão Instalar App -->
+        <button id="btnInstalarAppTopo" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-semibold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition" title="Instalar Aplicativo no Celular">
+          <i data-lucide="smartphone" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Baixar App</span>
+        </button>
+
         <!-- Botão Ouvir Áudio (TTS) -->
         <button id="btnOuvirAudio" class="p-2 rounded-xl text-stone-600 dark:text-stone-300 hover:bg-amber-100/70 dark:hover:bg-stone-800 transition flex items-center gap-1 text-xs font-medium" title="Ouvir Devocional">
           <i data-lucide="volume-2" class="w-5 h-5 text-amber-600 dark:text-amber-400" id="audioIcon"></i>
@@ -518,6 +529,72 @@
 
       <div id="listaFavoritosContainer" class="overflow-y-auto space-y-3 custom-scrollbar flex-1 pr-1">
         <!-- Inserido dinamicamente via JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: INSTALAR APLICATIVO NO CELULAR (PWA) -->
+  <div id="modalInstalarApp" class="fixed inset-0 z-50 bg-stone-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-stone-900 rounded-3xl max-w-md w-full p-6 border border-stone-200 dark:border-stone-800 shadow-2xl space-y-5">
+      
+      <!-- Topo do Modal -->
+      <div class="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <img src="icon.svg" alt="Ícone Palavra Diária" class="w-10 h-10 rounded-2xl shadow-md shadow-amber-500/20">
+          <div>
+            <h3 class="font-bold text-stone-900 dark:text-white text-base">Instalar Palavra Diária</h3>
+            <p class="text-xs text-stone-500">Tenha o devocional na tela do seu celular</p>
+          </div>
+        </div>
+        <button id="btnFecharModalInstalar" class="p-2 rounded-xl text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Vantagens do App -->
+      <div class="bg-amber-50/70 dark:bg-stone-800/60 rounded-2xl p-4 border border-amber-200/50 dark:border-stone-700/60 space-y-2 text-xs text-stone-700 dark:text-stone-300">
+        <div class="flex items-center gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+          <span>Acesso rápido direto pelo ícone na tela inicial</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+          <span>Funciona sem barras de navegador e até offline</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <i data-lucide="check" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+          <span>Compartilhamento instantâneo para WhatsApp e Instagram</span>
+        </div>
+      </div>
+
+      <!-- Botão de Instalação Automática (quando suportado) -->
+      <button id="btnConfirmarInstalacaoPWA" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-amber-900/10 active:scale-[0.98] transition text-sm">
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span id="labelBtnInstalar">Instalar Agora no Celular</span>
+      </button>
+
+      <!-- Instruções Específicas por Sistema -->
+      <div class="space-y-3 pt-1 text-xs">
+        <!-- Instruções Android -->
+        <div class="p-3 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 space-y-1">
+          <span class="font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5 text-amber-600"></i> No Android:
+          </span>
+          <p class="text-stone-600 dark:text-stone-400">
+            Clique no botão <strong>"Instalar Agora"</strong> acima, ou abra o menu do navegador (3 pontinhos) e toque em <strong>"Instalar aplicativo"</strong> ou <strong>"Adicionar à tela inicial"</strong>.
+          </p>
+        </div>
+
+        <!-- Instruções iPhone (iOS Safari) -->
+        <div class="p-3 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 space-y-1">
+          <span class="font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
+            <i data-lucide="apple" class="w-3.5 h-3.5 text-stone-700 dark:text-stone-300"></i> No iPhone / iPad (Safari):
+          </span>
+          <p class="text-stone-600 dark:text-stone-400">
+            Toque no botão <strong>Compartilhar</strong> (quadrado com seta para cima na barra inferior do Safari) e depois selecione <strong>"Adicionar à Tela de Início"</strong>.
+          </p>
+        </div>
       </div>
 
     </div>

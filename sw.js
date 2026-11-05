@@ -1,11 +1,12 @@
-// Service Worker do Maná Diário - Suporte Offline & Cache PWA
-const CACHE_NAME = 'mana-diario-v1';
+// Service Worker do Palavra Diária - Suporte Offline & Cache PWA
+const CACHE_NAME = 'palavra-diaria-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './devocionais.js',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './icon.svg'
 ];
 
 self.addEventListener('install', (event) => {

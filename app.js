@@ -982,7 +982,59 @@ function configurarEventos() {
 
   document.getElementById('navInstagram').addEventListener('click', abrirModalInstagram);
   document.getElementById('navFavoritos').addEventListener('click', abrirModalFavoritos);
+
+  // Instalação do Aplicativo (PWA)
+  const btnInstalarTopo = document.getElementById('btnInstalarAppTopo');
+  const modalInstalar = document.getElementById('modalInstalarApp');
+  const btnFecharModalInstalar = document.getElementById('btnFecharModalInstalar');
+  const btnConfirmarInstalacao = document.getElementById('btnConfirmarInstalacaoPWA');
+
+  if (btnInstalarTopo && modalInstalar) {
+    btnInstalarTopo.addEventListener('click', () => {
+      modalInstalar.classList.remove('hidden');
+    });
+  }
+
+  if (btnFecharModalInstalar && modalInstalar) {
+    btnFecharModalInstalar.addEventListener('click', () => {
+      modalInstalar.classList.add('hidden');
+    });
+  }
+
+  if (btnConfirmarInstalacao) {
+    btnConfirmarInstalacao.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        const { outcome } = await deferredInstallPrompt.userChoice;
+        if (outcome === 'accepted') {
+          exibirToast('🎉 Aplicativo instalado com sucesso!');
+          modalInstalar.classList.add('hidden');
+        }
+        deferredInstallPrompt = null;
+      } else {
+        exibirToast('Siga as instruções abaixo para adicionar à tela do seu celular!');
+      }
+    });
+  }
 }
+
+// --------------------------------------------------------------------------
+// PROMPT DE INSTALAÇÃO DO APLICATIVO (PWA)
+// --------------------------------------------------------------------------
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const labelBtn = document.getElementById('labelBtnInstalar');
+  if (labelBtn) {
+    labelBtn.textContent = 'Instalar Agora no Celular (1 Clique)';
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  exibirToast('✨ Palavra Diária instalado com sucesso!');
+});
 
 // --------------------------------------------------------------------------
 // REGISTRO DE SERVICE WORKER PARA SUPORTE OFFLINE / PWA

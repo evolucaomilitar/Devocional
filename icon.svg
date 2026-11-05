@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309" />
+      <stop offset="50%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef3c7" />
+      <stop offset="100%" stop-color="#fde68a" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Fundo com cantos arredondados -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+
+  <!-- Borda dourada sutil interna -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="none" stroke="rgba(255, 255, 255, 0.25)" stroke-width="4" />
+
+  <!-- Cruz Central Radiante -->
+  <g filter="url(#shadow)">
+    <!-- Raios de Luz ao redor da cruz -->
+    <circle cx="256" cy="200" r="90" fill="none" stroke="rgba(254, 243, 199, 0.3)" stroke-width="6" stroke-dasharray="8 12" />
+    <circle cx="256" cy="200" r="120" fill="none" stroke="rgba(254, 243, 199, 0.15)" stroke-width="4" stroke-dasharray="12 16" />
+
+    <!-- Haste Vertical da Cruz -->
+    <rect x="236" y="100" width="40" height="260" rx="8" fill="url(#gold)" />
+
+    <!-- Haste Horizontal da Cruz -->
+    <rect x="166" y="170" width="180" height="40" rx="8" fill="url(#gold)" />
+
+    <!-- Bíblia Aberta na Base -->
+    <path d="M 140 370 Q 256 340 256 390 Q 256 340 372 370 L 360 410 Q 256 380 256 420 Q 256 380 152 410 Z" fill="#ffffff" opacity="0.95" />
+    <!-- Marcador de Fita Dourada -->
+    <path d="M 252 380 L 260 380 L 264 435 L 256 425 L 248 435 Z" fill="#b45309" />
+  </g>
+
+  <!-- Texto Inferior -->
+  <text x="256" y="468" text-anchor="middle" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-size="28" font-weight="700" fill="#ffffff" letter-spacing="3">PALAVRA DIÁRIA</text>
+</svg>
